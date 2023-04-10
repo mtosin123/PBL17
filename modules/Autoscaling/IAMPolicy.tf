@@ -20,7 +20,7 @@ resource "aws_iam_policy" "policy" {
   tags = merge(
     var.tags,
     {
-      Name =  "aws assume policy"
+      Name = "aws assume policy"
     },
   )
 

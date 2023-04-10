@@ -23,11 +23,11 @@ resource "aws_launch_template" "wordpress-launch-template" {
     resource_type = "instance"
 
     tags = merge(
-    var.tags,
-    {
-      Name = "wordpress-launch-template"
-    },
-  )
+      var.tags,
+      {
+        Name = "wordpress-launch-template"
+      },
+    )
 
   }
 
@@ -63,7 +63,7 @@ resource "aws_autoscaling_group" "wordpress-asg" {
 # attaching autoscaling group of  wordpress application to internal loadbalancer
 resource "aws_autoscaling_attachment" "asg_attachment_wordpress" {
   autoscaling_group_name = aws_autoscaling_group.wordpress-asg.id
-  alb_target_group_arn   = aws_lb_target_group.wordpress-tgt.arn
+  lb_target_group_arn   = aws_lb_target_group.wordpress-tgt.arn
 }
 
 # launch template for toooling
@@ -89,12 +89,12 @@ resource "aws_launch_template" "tooling-launch-template" {
   tag_specifications {
     resource_type = "instance"
 
-  tags = merge(
-    var.tags,
-    {
-      Name = "tooling-launch-template"
-    },
-  )
+    tags = merge(
+      var.tags,
+      {
+        Name = "tooling-launch-template"
+      },
+    )
 
   }
 
@@ -105,16 +105,15 @@ resource "aws_launch_template" "tooling-launch-template" {
 
 resource "aws_autoscaling_group" "tooling-asg" {
   name                      = "tooling-asg"
-  max_size                  = 2
-  min_size                  = 1
+  max_size                  = var.max_size
+  min_size                  = var.min_size
   health_check_grace_period = 300
   health_check_type         = "ELB"
-  desired_capacity          = 1
+  desired_capacity          = var.desired_capacity
 
   vpc_zone_identifier = [
 
-    aws_subnet.private[0].id,
-    aws_subnet.private[1].id
+    var.private_subnets
   ]
 
   launch_template {
@@ -133,5 +132,5 @@ resource "aws_autoscaling_group" "tooling-asg" {
 # attaching autoscaling group of  tooling application to internal loadbalancer
 resource "aws_autoscaling_attachment" "asg_attachment_tooling" {
   autoscaling_group_name = aws_autoscaling_group.tooling-asg.id
-  alb_target_group_arn   = aws_lb_target_group.tooling-tgt.arn
+  lb_target_group_arn   = var.tooling-alb-tgt
 }
